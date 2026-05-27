@@ -14,6 +14,14 @@ PUBLIC_APP_URL=http://localhost:5292
 PORT=5292
 ```
 
+Voce tambem pode gerar o `.env` local com:
+
+```bash
+npm run configure:email
+```
+
+Nunca envie o arquivo `.env` para o GitHub.
+
 ## Configuracao do Resend
 
 1. Crie uma conta em https://resend.com.
@@ -63,4 +71,3 @@ O servidor mostra no console:
 - `429`: reenvio bloqueado por rate limit simples.
 
 As solicitacoes recebidas sao registradas localmente em `data/access-requests.jsonl`.
-
