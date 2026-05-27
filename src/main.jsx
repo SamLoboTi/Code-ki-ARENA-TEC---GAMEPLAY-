@@ -39,6 +39,8 @@ const dataEngineerGokuUrl = '/characters/goku-data-engineer.png';
 const ACCESS_REQUEST_ENDPOINT = '/api/access-request';
 const ACCESS_GATE_STORAGE_KEY = 'codeKiAccessRequestV1';
 const ACCESS_GATE_LAST_SUBMIT_KEY = 'codeKiAccessLastSubmitV1';
+const CREATOR_SESSION_KEY = 'codeKiCreatorSessionV1';
+const CREATOR_PASSWORD = 'Senior2026';
 const MINIMUM_ACCESS_AGE = 18;
 const spriteGrid = { columns: 13, rows: 8 };
 const allCharacterSprites = Array.from({ length: spriteGrid.columns * spriteGrid.rows }, (_, index) => ({
@@ -3438,6 +3440,14 @@ function writeAccessRequest(request) {
   window.localStorage.setItem(ACCESS_GATE_STORAGE_KEY, JSON.stringify(request));
 }
 
+function readCreatorSession() {
+  try {
+    return window.localStorage.getItem(CREATOR_SESSION_KEY) === 'unlocked';
+  } catch (error) {
+    return false;
+  }
+}
+
 function calculateAgeFromBirthDate(value) {
   if (!value) return 0;
   const birthDate = new Date(`${value}T00:00:00`);
@@ -3495,7 +3505,7 @@ function validateAccessForm(form) {
   return errors;
 }
 
-function AccessRequestGate({ onContinue }) {
+function AccessRequestGate({ onCreatorUnlock }) {
   const [form, setForm] = React.useState({
     firstName: '',
     lastName: '',
@@ -3513,6 +3523,8 @@ function AccessRequestGate({ onContinue }) {
   const [status, setStatus] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(Boolean(readAccessRequest()?.submitted));
+  const [creatorPassword, setCreatorPassword] = React.useState('');
+  const [creatorStatus, setCreatorStatus] = React.useState('');
 
   function updateField(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -3571,6 +3583,17 @@ function AccessRequestGate({ onContinue }) {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function unlockCreatorAccess(event) {
+    event.preventDefault();
+    if (creatorPassword !== CREATOR_PASSWORD) {
+      setCreatorStatus('Senha incorreta.');
+      return;
+    }
+    window.localStorage.setItem(CREATOR_SESSION_KEY, 'unlocked');
+    setCreatorStatus('');
+    onCreatorUnlock();
   }
 
   return (
@@ -3666,10 +3689,26 @@ function AccessRequestGate({ onContinue }) {
           </div>
 
           {submitted && (
-            <button className="access-continue" onClick={onContinue}>
-              <ChevronRight size={18} />Continuar para Code Ki Control
-            </button>
+            <div className="access-confirmation">
+              <CheckCircle2 size={20} />
+              <span>Cadastro registrado. Aguarde a analise para liberacao do acesso.</span>
+            </div>
           )}
+
+          <form className="creator-access" onSubmit={unlockCreatorAccess}>
+            <span>Acesso da criadora</span>
+            <div>
+              <input
+                value={creatorPassword}
+                onChange={(event) => setCreatorPassword(event.target.value)}
+                type="password"
+                placeholder="Senha admin"
+                autoComplete="current-password"
+              />
+              <button type="submit"><Lock size={16} />Entrar</button>
+            </div>
+            {creatorStatus && <small>{creatorStatus}</small>}
+          </form>
         </div>
 
         <div className="access-hero">
@@ -3686,7 +3725,7 @@ function AccessRequestGate({ onContinue }) {
 
 function App() {
   const [playerProfile, setPlayerProfile] = React.useState(null);
-  const [accessGranted, setAccessGranted] = React.useState(Boolean(readAccessRequest()));
+  const [creatorUnlocked, setCreatorUnlocked] = React.useState(readCreatorSession);
 
   function openPlayer(profile) {
     writePlayerProfile(profile);
@@ -3695,9 +3734,9 @@ function App() {
 
   return (
     <AnimatePresence mode="wait">
-      {!accessGranted ? (
+      {!creatorUnlocked ? (
         <motion.div key="access-gate" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
-          <AccessRequestGate onContinue={() => setAccessGranted(true)} />
+          <AccessRequestGate onCreatorUnlock={() => setCreatorUnlocked(true)} />
         </motion.div>
       ) : !playerProfile ? (
         <motion.div key="admin-console" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>

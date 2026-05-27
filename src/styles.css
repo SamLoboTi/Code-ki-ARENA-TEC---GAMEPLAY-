@@ -276,7 +276,7 @@ button {
 }
 
 .access-form button,
-.access-continue {
+.creator-access button {
   min-height: 52px;
   display: inline-flex;
   align-items: center;
@@ -321,11 +321,6 @@ button {
   background: rgba(255, 193, 66, 0.1);
 }
 
-.access-continue {
-  justify-self: start;
-  padding: 0 18px;
-}
-
 .access-hero {
   min-height: 560px;
   display: grid;
@@ -355,6 +350,63 @@ button {
   display: block;
   margin-top: 6px;
   color: #c9d6ee;
+  font-weight: 800;
+}
+
+.access-confirmation {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  padding: 12px;
+  color: #dfffea;
+  background: rgba(28, 154, 107, 0.13);
+  border: 1px solid rgba(93, 255, 184, 0.28);
+  font-weight: 900;
+}
+
+.access-confirmation svg {
+  flex: 0 0 auto;
+  color: #5dffb8;
+}
+
+.creator-access {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.creator-access > span {
+  color: #aebbd3;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.creator-access div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.creator-access input {
+  min-height: 48px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #fff;
+  background: rgba(0,0,0,0.28);
+  outline: none;
+}
+
+.creator-access button {
+  min-height: 48px;
+  padding: 0 16px;
+}
+
+.creator-access small {
+  color: #ff9aa7;
   font-weight: 800;
 }
 
@@ -3604,6 +3656,7 @@ select:focus {
   .access-gate-shell,
   .access-form,
   .access-hero,
+  .creator-access div,
   .admin-console-actions,
   .player-dashboard-card,
   .progress-dashboard-grid {
