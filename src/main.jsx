@@ -37,6 +37,7 @@ import typingCsv from '../desafios_programacao_16000.csv?raw';
 const characterSheetUrl = new URL('../R.png', import.meta.url).href;
 const dataEngineerGokuUrl = '/characters/goku-data-engineer.png';
 const ACCESS_REQUEST_EMAIL = 'samanthaocireulobo93@gmail.com';
+const ACCESS_REQUEST_ENDPOINT = `https://formsubmit.co/${ACCESS_REQUEST_EMAIL}`;
 const ACCESS_GATE_STORAGE_KEY = 'codeKiAccessRequestV1';
 const spriteGrid = { columns: 13, rows: 8 };
 const allCharacterSprites = Array.from({ length: spriteGrid.columns * spriteGrid.rows }, (_, index) => ({
@@ -3436,24 +3437,8 @@ function writeAccessRequest(request) {
   window.localStorage.setItem(ACCESS_GATE_STORAGE_KEY, JSON.stringify(request));
 }
 
-function buildAccessMailto({ name, email }) {
-  const subject = 'Solicitacao de acesso - Code Ki Arena TEC';
-  const body = [
-    'Ola Samantha,',
-    '',
-    'Um usuario solicitou acesso a Arena TEC - Code Ki.',
-    '',
-    `Nome: ${name}`,
-    `Email: ${email}`,
-    `Data: ${new Date().toLocaleString('pt-BR')}`,
-    '',
-    'Mensagem gerada automaticamente pela tela de solicitacao de acesso.'
-  ].join('\n');
-
-  return `mailto:${ACCESS_REQUEST_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
-
 function AccessRequestGate({ onContinue }) {
+  const formRef = React.useRef(null);
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [status, setStatus] = React.useState('');
@@ -3482,7 +3467,7 @@ function AccessRequestGate({ onContinue }) {
     writeAccessRequest(request);
     setSubmitted(true);
     setStatus('Sua solicitacao foi encaminhada para Samantha. Aguarde a validacao do acesso.');
-    window.location.href = buildAccessMailto(request);
+    window.setTimeout(() => formRef.current?.submit(), 80);
   }
 
   return (
@@ -3506,20 +3491,33 @@ function AccessRequestGate({ onContinue }) {
       >
         <div className="access-copy">
           <span className="eyebrow">Bem-vindos a Arena TEC</span>
-          <h1>Code Ki</h1>
+          <h1>Arena TEC</h1>
           <p>Solicite entrada para liberar a camada de controle e registrar seu acesso antes de entrar na arena.</p>
 
-          <form className="access-form" onSubmit={submitRequest}>
+          <form
+            ref={formRef}
+            className="access-form"
+            action={ACCESS_REQUEST_ENDPOINT}
+            method="POST"
+            target="access-request-frame"
+            onSubmit={submitRequest}
+          >
+            <input type="hidden" name="_subject" value="Solicitacao de acesso - Code Ki Arena TEC" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="projeto" value="Arena TEC - Code Ki" />
             <label>
               <span>Nome</span>
-              <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Seu nome" maxLength={48} autoComplete="name" />
+              <input name="nome" value={name} onChange={(event) => setName(event.target.value)} placeholder="Seu nome" maxLength={48} autoComplete="name" />
             </label>
             <label>
               <span>Email</span>
-              <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@email.com" type="email" maxLength={80} autoComplete="email" />
+              <input name="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@email.com" type="email" maxLength={80} autoComplete="email" />
             </label>
+            <textarea name="mensagem" value={`Solicitacao de acesso enviada pela tela inicial em ${new Date().toLocaleString('pt-BR')}.`} readOnly hidden />
             <button className="primary" type="submit"><Shield size={18} />Pedir solicitacao</button>
           </form>
+          <iframe className="access-request-frame" title="Envio de solicitacao de acesso" name="access-request-frame" />
 
           <div className={`access-status ${submitted ? 'success' : ''}`} role="status">
             {submitted ? <CheckCircle2 size={18} /> : <Lock size={18} />}
@@ -3536,7 +3534,7 @@ function AccessRequestGate({ onContinue }) {
         <div className="access-hero">
           <img src={dataEngineerGokuUrl} alt="Goku engenheiro de dados na Arena TEC" />
           <div>
-            <strong>Goku Engenheiro de Dados</strong>
+            <strong>Code Ki</strong>
             <span>Pipeline, codigo e ki em modo producao.</span>
           </div>
         </div>

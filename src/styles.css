@@ -204,6 +204,15 @@ button {
   gap: 12px;
 }
 
+.access-request-frame {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .access-form label {
   display: grid;
   gap: 8px;
