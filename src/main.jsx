@@ -39,7 +39,6 @@ const dataEngineerGokuUrl = '/characters/goku-data-engineer.png';
 const ACCESS_REQUEST_ENDPOINT = '/api/access-request';
 const ACCESS_GATE_STORAGE_KEY = 'codeKiAccessRequestV1';
 const ACCESS_GATE_LAST_SUBMIT_KEY = 'codeKiAccessLastSubmitV1';
-const CREATOR_SESSION_KEY = 'codeKiCreatorSessionV1';
 const CREATOR_PASSWORD = 'Senior2026';
 const MINIMUM_ACCESS_AGE = 18;
 const spriteGrid = { columns: 13, rows: 8 };
@@ -3440,14 +3439,6 @@ function writeAccessRequest(request) {
   window.localStorage.setItem(ACCESS_GATE_STORAGE_KEY, JSON.stringify(request));
 }
 
-function readCreatorSession() {
-  try {
-    return window.localStorage.getItem(CREATOR_SESSION_KEY) === 'unlocked';
-  } catch (error) {
-    return false;
-  }
-}
-
 function calculateAgeFromBirthDate(value) {
   if (!value) return 0;
   const birthDate = new Date(`${value}T00:00:00`);
@@ -3591,7 +3582,6 @@ function AccessRequestGate({ onCreatorUnlock }) {
       setCreatorStatus('Senha incorreta.');
       return;
     }
-    window.localStorage.setItem(CREATOR_SESSION_KEY, 'unlocked');
     setCreatorStatus('');
     onCreatorUnlock();
   }
@@ -3725,7 +3715,7 @@ function AccessRequestGate({ onCreatorUnlock }) {
 
 function App() {
   const [playerProfile, setPlayerProfile] = React.useState(null);
-  const [creatorUnlocked, setCreatorUnlocked] = React.useState(readCreatorSession);
+  const [creatorUnlocked, setCreatorUnlocked] = React.useState(false);
 
   function openPlayer(profile) {
     writePlayerProfile(profile);
