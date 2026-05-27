@@ -1,8 +1,8 @@
 node_modules/
 dist/
 tmp/
+data/
 *.log
 .env
 .env.*
 !.env.example
-

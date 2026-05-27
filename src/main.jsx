@@ -36,9 +36,10 @@ import typingCsv from '../desafios_programacao_16000.csv?raw';
 
 const characterSheetUrl = new URL('../R.png', import.meta.url).href;
 const dataEngineerGokuUrl = '/characters/goku-data-engineer.png';
-const ACCESS_REQUEST_EMAIL = 'samanthaocireulobo93@gmail.com';
-const ACCESS_REQUEST_ENDPOINT = `https://formsubmit.co/${ACCESS_REQUEST_EMAIL}`;
+const ACCESS_REQUEST_ENDPOINT = '/api/access-request';
 const ACCESS_GATE_STORAGE_KEY = 'codeKiAccessRequestV1';
+const ACCESS_GATE_LAST_SUBMIT_KEY = 'codeKiAccessLastSubmitV1';
+const MINIMUM_ACCESS_AGE = 18;
 const spriteGrid = { columns: 13, rows: 8 };
 const allCharacterSprites = Array.from({ length: spriteGrid.columns * spriteGrid.rows }, (_, index) => ({
   id: index + 1,
@@ -3437,37 +3438,139 @@ function writeAccessRequest(request) {
   window.localStorage.setItem(ACCESS_GATE_STORAGE_KEY, JSON.stringify(request));
 }
 
+function calculateAgeFromBirthDate(value) {
+  if (!value) return 0;
+  const birthDate = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(birthDate.getTime())) return 0;
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDelta = today.getMonth() - birthDate.getMonth();
+  if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birthDate.getDate())) {
+    age -= 1;
+  }
+  return age;
+}
+
+function normalizeAccessForm(form) {
+  const birthDate = form.birthDate.trim();
+  const age = calculateAgeFromBirthDate(birthDate);
+  return {
+    firstName: form.firstName.trim(),
+    lastName: form.lastName.trim(),
+    city: form.city.trim(),
+    state: form.state.trim().toUpperCase(),
+    birthDate,
+    age,
+    isAdult: age >= MINIMUM_ACCESS_AGE,
+    email: form.email.trim().toLowerCase(),
+    emailConfirmation: form.emailConfirmation.trim().toLowerCase(),
+    phone: form.phone.trim(),
+    acceptedTerms: form.acceptedTerms,
+    acceptedPrivacy: form.acceptedPrivacy,
+    consentEmail: form.consentEmail
+  };
+}
+
+function validateAccessForm(form) {
+  const errors = {};
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!form.firstName) errors.firstName = 'Informe seu nome.';
+  if (!form.lastName) errors.lastName = 'Informe seu sobrenome.';
+  if (!form.city) errors.city = 'Informe sua cidade.';
+  if (!form.state) errors.state = 'Informe seu estado.';
+  if (!form.birthDate) errors.birthDate = 'Informe sua data de nascimento.';
+  if (form.birthDate && !form.isAdult) errors.birthDate = 'Acesso permitido apenas para maiores de 18 anos.';
+  if (!form.email) errors.email = 'Informe seu email.';
+  if (form.email && !emailPattern.test(form.email)) errors.email = 'Digite um email valido.';
+  if (!form.emailConfirmation) errors.emailConfirmation = 'Confirme seu email.';
+  if (form.email && form.emailConfirmation && form.email !== form.emailConfirmation) {
+    errors.emailConfirmation = 'Os emails precisam ser iguais.';
+  }
+  if (!form.phone) errors.phone = 'Informe um telefone ou WhatsApp.';
+  if (!form.acceptedTerms) errors.acceptedTerms = 'Aceite os termos de uso para continuar.';
+  if (!form.acceptedPrivacy) errors.acceptedPrivacy = 'Aceite a politica de privacidade para continuar.';
+  if (!form.consentEmail) errors.consentEmail = 'Autorize o contato por email para receber a confirmacao.';
+
+  return errors;
+}
+
 function AccessRequestGate({ onContinue }) {
-  const formRef = React.useRef(null);
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
+  const [form, setForm] = React.useState({
+    firstName: '',
+    lastName: '',
+    city: '',
+    state: '',
+    birthDate: '',
+    email: '',
+    emailConfirmation: '',
+    phone: '',
+    acceptedTerms: false,
+    acceptedPrivacy: false,
+    consentEmail: false
+  });
+  const [errors, setErrors] = React.useState({});
   const [status, setStatus] = React.useState('');
-  const [submitted, setSubmitted] = React.useState(Boolean(readAccessRequest()));
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitted, setSubmitted] = React.useState(Boolean(readAccessRequest()?.submitted));
 
-  function submitRequest(event) {
+  function updateField(field, value) {
+    setForm((current) => ({ ...current, [field]: value }));
+    setErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
+
+  async function submitRequest(event) {
     event.preventDefault();
-    const cleanName = name.trim();
-    const cleanEmail = email.trim();
+    const normalized = normalizeAccessForm(form);
+    const validationErrors = validateAccessForm(normalized);
+    const lastSubmit = Number(window.localStorage.getItem(ACCESS_GATE_LAST_SUBMIT_KEY) || 0);
 
-    if (!cleanName || !cleanEmail) {
-      setStatus('Informe nome e email para solicitar acesso.');
+    if (Object.keys(validationErrors).length) {
+      setErrors(validationErrors);
+      setStatus('Revise os campos destacados antes de enviar.');
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      setStatus('Digite um email valido para continuar.');
+    if (Date.now() - lastSubmit < 60000) {
+      setStatus('Aguarde um minuto antes de enviar uma nova solicitacao.');
       return;
     }
 
-    const request = {
-      name: cleanName,
-      email: cleanEmail,
-      requestedAt: new Date().toISOString()
-    };
-    writeAccessRequest(request);
-    setSubmitted(true);
-    setStatus('Sua solicitacao foi encaminhada para Samantha. Aguarde a validacao do acesso.');
-    window.setTimeout(() => formRef.current?.submit(), 80);
+    setIsSubmitting(true);
+    setStatus('Enviando solicitacao com seguranca...');
+
+    try {
+      const response = await fetch(ACCESS_REQUEST_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(normalized)
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.message || 'Nao foi possivel enviar os emails agora.');
+      }
+
+      const request = {
+        ...normalized,
+        submitted: true,
+        requestId: payload.requestId,
+        requestedAt: payload.requestedAt || new Date().toISOString()
+      };
+      writeAccessRequest(request);
+      window.localStorage.setItem(ACCESS_GATE_LAST_SUBMIT_KEY, String(Date.now()));
+      setSubmitted(true);
+      setStatus('Sua solicitacao de acesso foi recebida com sucesso. Em breve ela sera analisada.');
+    } catch (error) {
+      setStatus(error.message || 'Erro ao enviar. Verifique a configuracao de email e tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -3492,35 +3595,73 @@ function AccessRequestGate({ onContinue }) {
         <div className="access-copy">
           <span className="eyebrow">Bem-vindos a Arena TEC</span>
           <h1>Arena TEC</h1>
-          <p>Solicite entrada para liberar a camada de controle e registrar seu acesso antes de entrar na arena.</p>
+          <p>Cadastre seus dados para solicitar acesso ao projeto games. A entrada na arena so e liberada apos o envio da solicitacao.</p>
 
-          <form
-            ref={formRef}
-            className="access-form"
-            action={ACCESS_REQUEST_ENDPOINT}
-            method="POST"
-            target="access-request-frame"
-            onSubmit={submitRequest}
-          >
-            <input type="hidden" name="_subject" value="Solicitacao de acesso - Code Ki Arena TEC" />
-            <input type="hidden" name="_captcha" value="false" />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="projeto" value="Arena TEC - Code Ki" />
-            <label>
+          <form className="access-form" onSubmit={submitRequest} noValidate>
+            <label className={errors.firstName ? 'invalid' : ''}>
               <span>Nome</span>
-              <input name="nome" value={name} onChange={(event) => setName(event.target.value)} placeholder="Seu nome" maxLength={48} autoComplete="name" />
+              <input value={form.firstName} onChange={(event) => updateField('firstName', event.target.value)} placeholder="Seu nome" maxLength={48} autoComplete="given-name" disabled={isSubmitting || submitted} />
+              {errors.firstName && <small>{errors.firstName}</small>}
             </label>
-            <label>
+            <label className={errors.lastName ? 'invalid' : ''}>
+              <span>Sobrenome</span>
+              <input value={form.lastName} onChange={(event) => updateField('lastName', event.target.value)} placeholder="Seu sobrenome" maxLength={64} autoComplete="family-name" disabled={isSubmitting || submitted} />
+              {errors.lastName && <small>{errors.lastName}</small>}
+            </label>
+            <label className={errors.city ? 'invalid' : ''}>
+              <span>Cidade</span>
+              <input value={form.city} onChange={(event) => updateField('city', event.target.value)} placeholder="Sao Paulo" maxLength={64} autoComplete="address-level2" disabled={isSubmitting || submitted} />
+              {errors.city && <small>{errors.city}</small>}
+            </label>
+            <label className={errors.state ? 'invalid' : ''}>
+              <span>Estado</span>
+              <input value={form.state} onChange={(event) => updateField('state', event.target.value)} placeholder="SP" maxLength={2} autoComplete="address-level1" disabled={isSubmitting || submitted} />
+              {errors.state && <small>{errors.state}</small>}
+            </label>
+            <label className={errors.birthDate ? 'invalid' : ''}>
+              <span>Data de nascimento</span>
+              <input value={form.birthDate} onChange={(event) => updateField('birthDate', event.target.value)} type="date" disabled={isSubmitting || submitted} />
+              {errors.birthDate && <small>{errors.birthDate}</small>}
+            </label>
+            <label className={errors.phone ? 'invalid' : ''}>
+              <span>Telefone ou WhatsApp</span>
+              <input value={form.phone} onChange={(event) => updateField('phone', event.target.value)} placeholder="(11) 99999-9999" maxLength={24} autoComplete="tel" disabled={isSubmitting || submitted} />
+              {errors.phone && <small>{errors.phone}</small>}
+            </label>
+            <label className={errors.email ? 'invalid' : ''}>
               <span>Email</span>
-              <input name="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@email.com" type="email" maxLength={80} autoComplete="email" />
+              <input value={form.email} onChange={(event) => updateField('email', event.target.value)} placeholder="voce@email.com" type="email" maxLength={80} autoComplete="email" disabled={isSubmitting || submitted} />
+              {errors.email && <small>{errors.email}</small>}
             </label>
-            <textarea name="mensagem" value={`Solicitacao de acesso enviada pela tela inicial em ${new Date().toLocaleString('pt-BR')}.`} readOnly hidden />
-            <button className="primary" type="submit"><Shield size={18} />Pedir solicitacao</button>
+            <label className={errors.emailConfirmation ? 'invalid' : ''}>
+              <span>Confirmar email</span>
+              <input value={form.emailConfirmation} onChange={(event) => updateField('emailConfirmation', event.target.value)} placeholder="repita seu email" type="email" maxLength={80} autoComplete="email" disabled={isSubmitting || submitted} />
+              {errors.emailConfirmation && <small>{errors.emailConfirmation}</small>}
+            </label>
+            <div className="access-checks">
+              <label className={errors.acceptedTerms ? 'invalid' : ''}>
+                <input type="checkbox" checked={form.acceptedTerms} onChange={(event) => updateField('acceptedTerms', event.target.checked)} disabled={isSubmitting || submitted} />
+                <span>Aceito os termos de uso.</span>
+                {errors.acceptedTerms && <small>{errors.acceptedTerms}</small>}
+              </label>
+              <label className={errors.acceptedPrivacy ? 'invalid' : ''}>
+                <input type="checkbox" checked={form.acceptedPrivacy} onChange={(event) => updateField('acceptedPrivacy', event.target.checked)} disabled={isSubmitting || submitted} />
+                <span>Aceito a politica de privacidade.</span>
+                {errors.acceptedPrivacy && <small>{errors.acceptedPrivacy}</small>}
+              </label>
+              <label className={errors.consentEmail ? 'invalid' : ''}>
+                <input type="checkbox" checked={form.consentEmail} onChange={(event) => updateField('consentEmail', event.target.checked)} disabled={isSubmitting || submitted} />
+                <span>Autorizo contato por email sobre minha solicitacao.</span>
+                {errors.consentEmail && <small>{errors.consentEmail}</small>}
+              </label>
+            </div>
+            <button className="primary" type="submit" disabled={isSubmitting || submitted}>
+              <Shield size={18} />{isSubmitting ? 'Enviando...' : submitted ? 'Solicitacao enviada' : 'Pedir solicitacao'}
+            </button>
           </form>
-          <iframe className="access-request-frame" title="Envio de solicitacao de acesso" name="access-request-frame" />
 
-          <div className={`access-status ${submitted ? 'success' : ''}`} role="status">
-            {submitted ? <CheckCircle2 size={18} /> : <Lock size={18} />}
+          <div className={`access-status ${submitted ? 'success' : status ? 'warning' : ''}`} role="status">
+            {submitted ? <CheckCircle2 size={18} /> : status ? <RadioTower size={18} /> : <Lock size={18} />}
             <span>{status || 'Acesso protegido. Sua solicitacao sera encaminhada para Samantha por email.'}</span>
           </div>
 

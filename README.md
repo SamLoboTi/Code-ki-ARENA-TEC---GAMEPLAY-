@@ -16,6 +16,17 @@ npm run build
 npm run preview
 ```
 
+## Cadastro de pre-acesso com email real
+
+Para enviar solicitacoes reais por email sem expor chaves no frontend, use o servidor Node:
+
+```bash
+npm run build
+npm run serve:app
+```
+
+Configure `RESEND_API_KEY`, `ACCESS_EMAIL_FROM` e `ACCESS_EMAIL_TO`. Veja [docs/access-email.md](docs/access-email.md).
+
 ## Estrutura
 
 - `src/`: codigo da interface e logica do jogo.

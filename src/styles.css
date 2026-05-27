@@ -201,16 +201,8 @@ button {
 
 .access-form {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-}
-
-.access-request-frame {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  border: 0;
-  opacity: 0;
-  pointer-events: none;
 }
 
 .access-form label {
@@ -218,14 +210,22 @@ button {
   gap: 8px;
 }
 
-.access-form span {
+.access-form label:nth-of-type(7),
+.access-form label:nth-of-type(8),
+.access-checks,
+.access-form button {
+  grid-column: 1 / -1;
+}
+
+.access-form span,
+.access-checks span {
   color: #aebbd3;
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
 }
 
-.access-form input {
+.access-form input:not([type="checkbox"]) {
   min-height: 52px;
   border: 1px solid color-mix(in srgb, var(--accent), transparent 48%);
   border-radius: 8px;
@@ -233,6 +233,46 @@ button {
   color: #fff;
   background: rgba(0,0,0,0.34);
   outline: none;
+}
+
+.access-form input:disabled {
+  opacity: 0.68;
+  cursor: not-allowed;
+}
+
+.access-form label.invalid input:not([type="checkbox"]) {
+  border-color: #ff6b7a;
+  box-shadow: 0 0 0 3px rgba(255, 107, 122, 0.14);
+}
+
+.access-form small {
+  color: #ff9aa7;
+  font-weight: 800;
+}
+
+.access-checks {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.2);
+}
+
+.access-checks label {
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  column-gap: 10px;
+}
+
+.access-checks input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: var(--accent);
+}
+
+.access-checks small {
+  grid-column: 2;
 }
 
 .access-form button,
@@ -247,6 +287,11 @@ button {
   color: #fff;
   background: rgba(255,255,255,0.08);
   font-weight: 900;
+}
+
+.access-form button:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .access-status {
@@ -269,6 +314,11 @@ button {
 .access-status.success {
   border: 1px solid rgba(93, 255, 184, 0.3);
   background: rgba(28, 154, 107, 0.12);
+}
+
+.access-status.warning {
+  border: 1px solid rgba(255, 208, 95, 0.24);
+  background: rgba(255, 193, 66, 0.1);
 }
 
 .access-continue {
@@ -3552,6 +3602,7 @@ select:focus {
   }
 
   .access-gate-shell,
+  .access-form,
   .access-hero,
   .admin-console-actions,
   .player-dashboard-card,
