@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo segura - Think monitorament bussiness</title>
+    <style>
+      :root {
+        --bg: #021b13;
+        --panel: #06271d;
+        --panel-2: #0a3327;
+        --line: rgba(170, 255, 218, 0.14);
+        --text: #f4fff8;
+        --muted: #94b9aa;
+        --accent: #29e69b;
+        --warn: #ffd15c;
+        --danger: #ff7d7d;
+        --blue: #6fb5ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at 72% 14%, rgba(28, 116, 82, 0.2), transparent 36%), var(--bg);
+        color: var(--text);
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        overflow: hidden;
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+      }
+
+      aside {
+        border-right: 1px solid var(--line);
+        padding: 26px 20px;
+        background: rgba(1, 17, 12, 0.62);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 34px;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: linear-gradient(160deg, #22d391, #52ffc2);
+        color: white;
+        font-weight: 900;
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 18px;
+        line-height: 1.05;
+      }
+
+      .brand span,
+      .small,
+      .muted {
+        color: var(--muted);
+      }
+
+      nav {
+        display: grid;
+        gap: 10px;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 50px;
+        padding: 0 16px;
+        border-radius: 16px;
+        color: var(--muted);
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      .nav-item.active {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .nav-icon {
+        width: 20px;
+        text-align: center;
+      }
+
+      .health {
+        position: absolute;
+        left: 20px;
+        bottom: 26px;
+        width: 238px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: rgba(5, 38, 28, 0.88);
+      }
+
+      .health strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 17px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin: 5px 4px 0 0;
+        padding: 7px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        color: #c7f7e5;
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .pill.good {
+        color: #9fffd2;
+        border-color: rgba(41, 230, 155, 0.38);
+      }
+
+      .pill.warn {
+        color: var(--warn);
+        border-color: rgba(255, 209, 92, 0.38);
+      }
+
+      main {
+        position: relative;
+        padding: 26px 26px 120px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 870px;
+        margin: 0;
+        font-size: 40px;
+        line-height: 1.04;
+      }
+
+      .score {
+        padding: 12px 18px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.07);
+        font-weight: 900;
+      }
+
+      .score::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        margin-right: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 18px var(--accent);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 24px;
+      }
+
+      .card {
+        min-height: 124px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(7, 43, 32, 0.86);
+      }
+
+      .card h3 {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 14px;
+        text-transform: uppercase;
+      }
+
+      .metric {
+        font-size: 34px;
+        font-weight: 900;
+      }
+
+      .delta {
+        margin-top: 8px;
+        color: #b7fbdc;
+        font-size: 13px;
+      }
+
+      .wide {
+        grid-column: span 2;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 13px 10px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        font-size: 14px;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+
+      .content {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 260ms ease, transform 260ms ease;
+      }
+
+      .content.swap {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      .chat-row {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 16px;
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .list-item {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .message {
+        margin-bottom: 12px;
+        padding: 14px 16px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .message.agent {
+        background: rgba(41, 230, 155, 0.12);
+      }
+
+      .caption {
+        position: absolute;
+        left: 320px;
+        right: 32px;
+        bottom: 28px;
+        min-height: 72px;
+        padding: 18px 22px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 8px;
+        background: rgba(1, 14, 10, 0.84);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.36);
+        font-size: 23px;
+        font-weight: 800;
+        line-height: 1.25;
+      }
+
+      .caption small {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .cursor {
+        position: absolute;
+        z-index: 5;
+        left: 520px;
+        top: 380px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 8px rgba(41, 230, 155, 0.18), 0 0 28px rgba(41, 230, 155, 0.7);
+        transition: left 800ms ease, top 800ms ease, transform 180ms ease;
+      }
+
+      .cursor.click {
+        transform: scale(0.72);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <div class="brand">
+          <div class="brand-mark">TM</div>
+          <div>
+            <strong>Think monitorament<br />bussiness</strong>
+            <span>WhatsApp control room</span>
+          </div>
+        </div>
+        <nav id="nav"></nav>
+        <div class="health">
+          <strong>Saude operacional</strong>
+          <span class="muted">Ambiente demonstrativo</span>
+          <div>
+            <span class="pill good">realtime: ok</span>
+            <span class="pill good">conector: ok</span>
+            <span class="pill good">captura: ok</span>
+          </div>
+          <p class="small">Eventos ficticios: 128</p>
+        </div>
+      </aside>
+      <main>
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">Think monitorament bussiness</p>
+            <h1 id="title">Atendimento em tempo real com foco em SLA e agilidade</h1>
+          </div>
+          <div class="score">score: 92</div>
+        </div>
+        <div id="content" class="content"></div>
+        <div id="cursor" class="cursor"></div>
+        <div id="caption" class="caption"></div>
+      </main>
+    </div>
+
+    <script>
+      const tabs = [
+        ["Monitoramento", "▦"],
+        ["Mensagens", "▱"],
+        ["Alertas", "♧"],
+        ["Grupos", "☷"],
+        ["Regras", "◇"],
+        ["IA Chat", "◈"],
+        ["WhatsApp", "◌"],
+        ["Configuracao", "⚙"],
+      ];
+
+      const steps = [
+        {
+          tab: "Monitoramento",
+          title: "Atendimento em tempo real com foco em SLA e agilidade",
+          cursor: [1060, 188],
+          caption: "Visao geral segura: todos os indicadores usam dados ficticios para mostrar o funcionamento sem expor operacao real.",
+          note: "KPI, SLA e saude operacional em uma tela.",
+          html: `
+            <div class="grid">
+              <div class="card"><h3>Conversas abertas</h3><div class="metric">42</div><div class="delta">+8 na ultima hora</div></div>
+              <div class="card"><h3>SLA medio</h3><div class="metric">03m 18s</div><div class="delta">dentro da meta</div></div>
+              <div class="card"><h3>Alertas criticos</h3><div class="metric">2</div><div class="delta">triagem prioritaria</div></div>
+              <div class="card"><h3>Resolucao</h3><div class="metric">87%</div><div class="delta">amostra demo</div></div>
+              <div class="card wide">
+                <div class="section-title"><h2>Fila em tempo real</h2><span class="pill good">simulado</span></div>
+                <table><tr><th>Canal</th><th>Status</th><th>SLA</th></tr><tr><td>Suporte Loja A</td><td>Em atendimento</td><td>02m 11s</td></tr><tr><td>Comercial</td><td>Aguardando agente</td><td>04m 32s</td></tr><tr><td>Pos-venda</td><td>Resolvido</td><td>01m 48s</td></tr></table>
+              </div>
+              <div class="card wide">
+                <div class="section-title"><h2>Tendencia de volume</h2><span class="pill">ultimos 30 min</span></div>
+                <div style="display:flex;align-items:end;gap:10px;height:160px;padding-top:22px">
+                  ${[44, 60, 52, 88, 76, 96, 70, 110, 102, 118].map((h) => `<div style="width:9%;height:${h}px;background:linear-gradient(#4cffbd,#177b58);border-radius:6px 6px 0 0"></div>`).join("")}
+                </div>
+              </div>
+            </div>`,
+        },
+        {
+          tab: "Mensagens",
+          title: "Mensagens organizadas por prioridade e contexto",
+          cursor: [128, 204],
+          caption: "A caixa de mensagens separa conversas por prioridade, SLA e responsavel. Nomes, telefones e conteudos aqui sao exemplos.",
+          note: "Conversas ficticias para demonstracao.",
+          html: `
+            <div class="chat-row">
+              <div class="list">
+                <div class="list-item"><strong>Cliente Demo 01</strong><br><span class="muted">Pedido em acompanhamento</span><br><span class="pill warn">SLA 04m</span></div>
+                <div class="list-item"><strong>Cliente Demo 02</strong><br><span class="muted">Duvida comercial</span><br><span class="pill good">SLA ok</span></div>
+                <div class="list-item"><strong>Cliente Demo 03</strong><br><span class="muted">Retorno automatico</span><br><span class="pill">bot</span></div>
+              </div>
+              <div class="card">
+                <div class="section-title"><h2>Conversa simulada</h2><span class="pill good">sem dados reais</span></div>
+                <div class="message">Cliente: Ola, preciso acompanhar meu atendimento de exemplo.</div>
+                <div class="message agent">Agente: Claro. Vou verificar o protocolo demonstrativo e manter voce informado.</div>
+                <div class="message">Cliente: Obrigado, fico no aguardo.</div>
+                <div class="message agent">Sugestao IA: responder com prazo estimado e link interno do pedido ficticio.</div>
+              </div>
+            </div>`,
+        },
+        {
+          tab: "Alertas",
+          title: "Alertas para risco de SLA, volume e qualidade",
+          cursor: [134, 262],
+          caption: "Os alertas destacam pontos que precisam de acao: fila crescendo, SLA perto do limite e palavras-chave sensiveis.",
+          note: "Eventos de alerta simulados.",
+          html: `
+            <div class="grid">
+              <div class="card wide"><div class="section-title"><h2>Alertas ativos</h2><span class="pill warn">2 criticos</span></div>
+                <table><tr><th>Tipo</th><th>Origem</th><th>Acao</th></tr><tr><td>SLA proximo do limite</td><td>Suporte Loja A</td><td>Repriorizar agente</td></tr><tr><td>Pico de volume</td><td>Comercial</td><td>Ativar fila extra</td></tr><tr><td>Sentimento negativo</td><td>Pos-venda</td><td>Escalar supervisor</td></tr></table>
+              </div>
+              <div class="card"><h3>Criticos</h3><div class="metric" style="color:var(--danger)">2</div><div class="delta">precisam revisao</div></div>
+              <div class="card"><h3>Resolvidos hoje</h3><div class="metric">19</div><div class="delta">amostra demo</div></div>
+              <div class="card wide"><h2>Recomendacao</h2><p class="muted">Realocar atendentes para a fila Comercial por 20 minutos e manter monitoramento de SLA.</p></div>
+            </div>`,
+        },
+        {
+          tab: "Grupos",
+          title: "Grupos acompanhados com saude, volume e regras",
+          cursor: [130, 322],
+          caption: "A aba de grupos mostra quais filas/canais estao conectados e como cada grupo esta performando.",
+          note: "Grupos ficticios, sem IDs reais.",
+          html: `
+            <div class="grid">
+              <div class="card wide"><div class="section-title"><h2>Grupos monitorados</h2><span class="pill good">4 online</span></div>
+                <table><tr><th>Grupo</th><th>Volume</th><th>Status</th><th>Dono</th></tr><tr><td>Suporte Loja A</td><td>128 msgs</td><td>Online</td><td>Equipe Norte</td></tr><tr><td>Comercial Demo</td><td>84 msgs</td><td>Online</td><td>Vendas</td></tr><tr><td>Pos-venda Exemplo</td><td>56 msgs</td><td>Online</td><td>Relacionamento</td></tr></table>
+              </div>
+              <div class="card"><h3>Maior fila</h3><div class="metric">128</div><div class="delta">Suporte Loja A</div></div>
+              <div class="card"><h3>Qualidade</h3><div class="metric">91%</div><div class="delta">indice demo</div></div>
+            </div>`,
+        },
+        {
+          tab: "Regras",
+          title: "Regras automatizam prioridade, alerta e encaminhamento",
+          cursor: [130, 382],
+          caption: "As regras definem o que acontece quando uma conversa atinge um criterio: abrir alerta, sugerir resposta ou escalar atendimento.",
+          note: "Regras de negocio exemplificativas.",
+          html: `
+            <div class="grid">
+              <div class="card wide"><div class="section-title"><h2>Automacoes</h2><span class="pill good">ativas</span></div>
+                <table><tr><th>Regra</th><th>Condicao</th><th>Resultado</th></tr><tr><td>SLA amarelo</td><td>sem resposta por 4 min</td><td>alertar lider</td></tr><tr><td>Mensagem urgente</td><td>palavra-chave critica</td><td>prioridade alta</td></tr><tr><td>Fila comercial</td><td>volume acima de 80</td><td>acionar reforco</td></tr></table>
+              </div>
+              <div class="card wide"><h2>Edicao controlada</h2><p class="muted">A equipe pode ajustar limites, canais e responsaveis sem tocar em dados sensiveis na demo.</p></div>
+            </div>`,
+        },
+        {
+          tab: "IA Chat",
+          title: "IA Chat ajuda a resumir, sugerir e acelerar respostas",
+          cursor: [130, 440],
+          caption: "A IA transforma contexto operacional em sugestoes: resumo da conversa, proximas acoes e resposta recomendada para o agente.",
+          note: "Sugestoes geradas sobre conversa ficticia.",
+          html: `
+            <div class="chat-row">
+              <div class="card"><h2>Prompt operacional</h2><p class="muted">Resuma o atendimento e sugira a proxima resposta.</p><span class="pill good">contexto mascarado</span></div>
+              <div class="card">
+                <div class="section-title"><h2>Resposta IA</h2><span class="pill">demo</span></div>
+                <div class="message agent"><strong>Resumo:</strong> cliente demonstrativo aguarda confirmacao de status.</div>
+                <div class="message agent"><strong>Proxima acao:</strong> enviar prazo estimado e registrar acompanhamento.</div>
+                <div class="message agent"><strong>Resposta sugerida:</strong> “Obrigado por aguardar. Seu atendimento de exemplo esta em acompanhamento e retornaremos em ate 10 minutos.”</div>
+              </div>
+            </div>`,
+        },
+        {
+          tab: "WhatsApp",
+          title: "Conexao WhatsApp com estado operacional claro",
+          cursor: [130, 498],
+          caption: "A tela de WhatsApp mostra sessao, conector e eventos recebidos. Qualquer identificador real foi substituido por valores de exemplo.",
+          note: "Status ficticio de integracao.",
+          html: `
+            <div class="grid">
+              <div class="card"><h3>Sessao</h3><div class="metric">Online</div><div class="delta">numero mascarado</div></div>
+              <div class="card"><h3>Eventos hoje</h3><div class="metric">1.248</div><div class="delta">amostra demo</div></div>
+              <div class="card"><h3>Ultimo ping</h3><div class="metric">12s</div><div class="delta">conector saudavel</div></div>
+              <div class="card"><h3>QR</h3><div class="metric">OK</div><div class="delta">sem exibicao real</div></div>
+              <div class="card wide"><h2>Protecao na demonstracao</h2><p class="muted">Telefones, nomes de grupos, mensagens e tokens nao aparecem no video final.</p></div>
+            </div>`,
+        },
+        {
+          tab: "Configuracao",
+          title: "Configuracoes exibidas sem segredos ou credenciais",
+          cursor: [130, 558],
+          caption: "A configuracao fecha o tour: parametros operacionais aparecem, mas chaves, webhooks e credenciais ficam ocultos.",
+          note: "Encerramento da demo segura.",
+          html: `
+            <div class="grid">
+              <div class="card wide"><div class="section-title"><h2>Parametros</h2><span class="pill good">seguro para video</span></div>
+                <table><tr><th>Item</th><th>Valor exibido</th><th>Status</th></tr><tr><td>Webhook</td><td>https://demo.exemplo/webhook</td><td>Mascarado</td></tr><tr><td>Token IA</td><td>••••••••••••</td><td>Oculto</td></tr><tr><td>Usuarios</td><td>Equipe Demo</td><td>Ficticio</td></tr></table>
+              </div>
+              <div class="card wide"><h2>Video pronto para apresentacao</h2><p class="muted">Fluxo demonstrativo por dentro, com legenda explicativa e sem informacao sensivel.</p></div>
+            </div>`,
+        },
+      ];
+
+      const nav = document.getElementById("nav");
+      const title = document.getElementById("title");
+      const content = document.getElementById("content");
+      const caption = document.getElementById("caption");
+      const cursor = document.getElementById("cursor");
+
+      for (const [label, icon] of tabs) {
+        const item = document.createElement("div");
+        item.className = "nav-item";
+        item.dataset.tab = label;
+        item.innerHTML = `<span class="nav-icon">${icon}</span><span>${label}</span>`;
+        nav.appendChild(item);
+      }
+
+      function render(index) {
+        const step = steps[index];
+        document.querySelectorAll(".nav-item").forEach((item) => {
+          item.classList.toggle("active", item.dataset.tab === step.tab);
+        });
+        content.classList.add("swap");
+        cursor.classList.add("click");
+        setTimeout(() => {
+          title.textContent = step.title;
+          content.innerHTML = step.html;
+          caption.innerHTML = `${step.caption}<small>${step.note}</small>`;
+          content.classList.remove("swap");
+          cursor.style.left = `${step.cursor[0]}px`;
+          cursor.style.top = `${step.cursor[1]}px`;
+        }, 220);
+        setTimeout(() => cursor.classList.remove("click"), 460);
+      }
+
+      render(0);
+      let i = 0;
+      setInterval(() => {
+        i = Math.min(i + 1, steps.length - 1);
+        render(i);
+      }, 5000);
+    </script>
+  </body>
+</html>

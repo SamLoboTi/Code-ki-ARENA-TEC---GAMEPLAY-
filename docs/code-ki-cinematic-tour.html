@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Code Ki Arena - Cinematic Tour</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --cyan: #45d9ff;
+      --green: #79ff93;
+      --violet: #a477ff;
+      --gold: #ffd36a;
+      --pink: #ff6fae;
+      --bg: #030713;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #020510;
+      color: #f8fbff;
+    }
+
+    .film {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 74% 18%, rgba(69,217,255,.28), transparent 24%),
+        radial-gradient(circle at 18% 84%, rgba(255,211,106,.20), transparent 22%),
+        linear-gradient(135deg, #040918 0%, #0b1229 52%, #050611 100%);
+    }
+
+    .film::before,
+    .film::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .film::before {
+      opacity: .22;
+      background:
+        repeating-linear-gradient(180deg, transparent 0 8px, rgba(255,255,255,.09) 9px 10px),
+        linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      mix-blend-mode: screen;
+      animation: scan 8s linear infinite;
+    }
+
+    .film::after {
+      box-shadow: inset 0 0 100px rgba(0,0,0,.78);
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(#fff 1px, transparent 1px),
+        radial-gradient(var(--cyan) 1px, transparent 1px);
+      background-size: 120px 120px, 190px 190px;
+      background-position: 0 0, 60px 40px;
+      opacity: .34;
+      animation: drift 34s linear infinite;
+    }
+
+    .grid-floor {
+      position: absolute;
+      left: -10%;
+      right: -10%;
+      bottom: -15%;
+      height: 42%;
+      background:
+        linear-gradient(rgba(69,217,255,.25) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(69,217,255,.24) 1px, transparent 1px);
+      background-size: 64px 42px;
+      transform: perspective(700px) rotateX(62deg);
+      transform-origin: center bottom;
+      opacity: .28;
+      filter: drop-shadow(0 0 12px rgba(69,217,255,.5));
+    }
+
+    .halo {
+      position: absolute;
+      width: 620px;
+      aspect-ratio: 1;
+      border: 1px solid rgba(69,217,255,.24);
+      border-radius: 50%;
+      right: -120px;
+      top: 30px;
+      box-shadow: inset 0 0 60px rgba(69,217,255,.12), 0 0 70px rgba(69,217,255,.16);
+      animation: rotate 22s linear infinite;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      padding: 42px;
+      opacity: 0;
+      transform: scale(.985);
+      transition: opacity .75s ease, transform .75s ease;
+      z-index: 2;
+    }
+
+    .scene.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .chapter {
+      position: absolute;
+      left: 42px;
+      top: 32px;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #dff8ff;
+    }
+
+    .chapter b {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--cyan), #fff);
+      color: #07101c;
+      box-shadow: 0 0 32px rgba(69,217,255,.46);
+    }
+
+    .caption {
+      position: absolute;
+      left: 50%;
+      bottom: 28px;
+      z-index: 50;
+      transform: translateX(-50%);
+      width: min(980px, calc(100vw - 70px));
+      min-height: 72px;
+      display: grid;
+      place-items: center;
+      padding: 16px 22px;
+      border: 1px solid rgba(69,217,255,.55);
+      border-radius: 8px;
+      background: rgba(3, 8, 22, .74);
+      box-shadow: 0 22px 80px rgba(0,0,0,.48), 0 0 34px rgba(69,217,255,.18);
+      backdrop-filter: blur(16px);
+      text-align: center;
+      font-size: 21px;
+      line-height: 1.25;
+      font-weight: 900;
+    }
+
+    .progress {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      z-index: 60;
+      height: 5px;
+      width: 100%;
+      background: rgba(255,255,255,.08);
+    }
+
+    .progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--green), #fff);
+      box-shadow: 0 0 24px var(--cyan);
+    }
+
+    .opening {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .title-stack {
+      padding-left: 28px;
+      animation: floatIn .9s ease both;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(69,217,255,.48);
+      border-radius: 99px;
+      color: var(--cyan);
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      background: rgba(69,217,255,.08);
+    }
+
+    h1, h2, p { margin: 0; }
+
+    h1 {
+      margin-top: 18px;
+      font-size: 92px;
+      line-height: .88;
+      text-transform: uppercase;
+      text-shadow: 0 0 42px rgba(69,217,255,.38);
+    }
+
+    .subtitle {
+      margin-top: 18px;
+      max-width: 700px;
+      color: #c6d4ec;
+      font-size: 25px;
+      line-height: 1.28;
+      font-weight: 800;
+    }
+
+    .hero-stage {
+      position: relative;
+      min-height: 620px;
+      display: grid;
+      place-items: center;
+    }
+
+    .hero-stage::before {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 520px;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 50% 62%, rgba(121,255,147,.28), transparent 48%),
+        rgba(0,0,0,.22);
+      border: 1px solid rgba(121,255,147,.34);
+      box-shadow: 0 0 70px rgba(121,255,147,.18);
+    }
+
+    .hero-fighter {
+      position: relative;
+      width: 410px;
+      height: 590px;
+      background: url("../public/characters/fullbody/goku-arena-v3.png") center bottom / contain no-repeat;
+      filter: drop-shadow(0 0 30px rgba(69,217,255,.55));
+      animation: powerIdle 2.4s ease-in-out infinite;
+    }
+
+    .cards-3 {
+      margin-top: 32px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 860px;
+    }
+
+    .mini-card,
+    .panel,
+    .arena-card,
+    .stat-card {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(13,20,43,.82), rgba(5,10,24,.74));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 18px 60px rgba(0,0,0,.28);
+      backdrop-filter: blur(14px);
+    }
+
+    .mini-card {
+      min-height: 104px;
+      padding: 16px;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+    }
+
+    .mini-card strong {
+      color: #fff;
+      font-size: 20px;
+    }
+
+    .mini-card span {
+      color: #aec0dc;
+      font-weight: 800;
+    }
+
+    .admin-layout,
+    .dashboard-layout,
+    .arena-layout {
+      height: calc(100vh - 84px);
+      display: grid;
+      gap: 18px;
+      padding-top: 38px;
+    }
+
+    .admin-layout {
+      grid-template-columns: .92fr 1.08fr;
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 0 24%, rgba(255,255,255,.12) 28%, transparent 34% 100%);
+      transform: translateX(-80%);
+      animation: sweep 4.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .panel > * { position: relative; z-index: 1; }
+
+    .panel h2 {
+      font-size: 48px;
+      line-height: .95;
+      text-transform: uppercase;
+    }
+
+    .field {
+      margin-top: 24px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .label {
+      color: #aebbd3;
+      font-size: 13px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .input {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border: 1px solid rgba(69,217,255,.5);
+      border-radius: 8px;
+      background: rgba(0,0,0,.34);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .action-row {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr .8fr;
+      gap: 12px;
+    }
+
+    .button {
+      min-height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--cyan), #fff);
+      color: #06101d;
+      font-weight: 950;
+      box-shadow: 0 0 28px rgba(69,217,255,.38);
+    }
+
+    .button.secondary {
+      background: rgba(255,255,255,.08);
+      color: #f8fbff;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: none;
+    }
+
+    .status-line {
+      margin-top: 18px;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(0,0,0,.26);
+      color: #dcecff;
+      font-weight: 850;
+    }
+
+    .account-list {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .account {
+      min-height: 72px;
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 9px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,.06);
+    }
+
+    .avatar {
+      width: 52px;
+      height: 58px;
+      border-radius: 8px;
+      background-position: center;
+      background-size: cover;
+      border: 1px solid rgba(255,255,255,.24);
+    }
+
+    .account strong,
+    .account span {
+      display: block;
+    }
+
+    .account strong { font-size: 19px; }
+    .account span { color: #aebbd3; font-weight: 800; }
+    .account b { color: var(--green); }
+
+    .roster {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .preview {
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 12px;
+      text-align: center;
+      min-height: 600px;
+    }
+
+    .preview .body {
+      width: 220px;
+      height: 420px;
+      background: url("../public/characters/focus/android18-combat-v4.png") center bottom / contain no-repeat;
+      filter: drop-shadow(0 0 26px rgba(141,255,158,.45));
+      animation: powerIdle 2.2s ease-in-out infinite;
+    }
+
+    .preview strong {
+      font-size: 30px;
+      text-transform: uppercase;
+    }
+
+    .roster-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      align-content: center;
+    }
+
+    .roster-card {
+      min-height: 82px;
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 9px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 8px;
+      background: rgba(255,255,255,.055);
+    }
+
+    .roster-card.active {
+      border-color: var(--green);
+      background: rgba(121,255,147,.13);
+      box-shadow: 0 0 28px rgba(121,255,147,.2);
+    }
+
+    .dashboard-layout {
+      grid-template-columns: 330px 1fr 340px;
+      align-items: stretch;
+    }
+
+    .profile-card {
+      display: grid;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .profile-body {
+      height: 330px;
+      border-radius: 8px;
+      border: 1px solid rgba(121,255,147,.28);
+      background:
+        radial-gradient(circle at 50% 80%, rgba(121,255,147,.24), transparent 50%),
+        url("../public/characters/fullbody/piccolo-arena-v3.png") center bottom / contain no-repeat,
+        rgba(0,0,0,.18);
+      filter: drop-shadow(0 0 24px rgba(121,255,147,.38));
+      animation: powerIdle 2.8s ease-in-out infinite;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat-card {
+      min-height: 104px;
+      padding: 16px;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+    }
+
+    .stat-card span {
+      color: #aebbd3;
+      font-size: 13px;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .stat-card strong {
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .level-track {
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,.09);
+    }
+
+    .level-track b {
+      display: block;
+      height: 100%;
+      width: 72%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), #fff);
+      box-shadow: 0 0 18px rgba(121,255,147,.6);
+      animation: fillPulse 2s ease-in-out infinite;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      align-content: center;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 78px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    .timeline-row i {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(69,217,255,.12);
+      border: 1px solid rgba(69,217,255,.4);
+      color: var(--cyan);
+      font-style: normal;
+      font-weight: 950;
+    }
+
+    .timeline-row b {
+      color: var(--gold);
+    }
+
+    .arena-layout {
+      grid-template-columns: 280px minmax(0, 1fr) 330px;
+    }
+
+    .game-list,
+    .side-info {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .mode {
+      min-height: 86px;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,.06);
+    }
+
+    .mode.active {
+      border-color: var(--cyan);
+      box-shadow: 0 0 28px rgba(69,217,255,.2);
+    }
+
+    .mode i {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      font-style: normal;
+      font-weight: 950;
+    }
+
+    .mode strong,
+    .mode span {
+      display: block;
+    }
+
+    .mode span {
+      margin-top: 3px;
+      color: #aebbd3;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .battle {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: 1fr 130px 1fr;
+      gap: 12px;
+    }
+
+    .bar {
+      min-height: 86px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .bar strong {
+      display: flex;
+      justify-content: space-between;
+      font-size: 20px;
+    }
+
+    .bar span {
+      display: block;
+      margin-top: 8px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+
+    .bar b {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), #fff);
+    }
+
+    .bar.enemy b {
+      background: linear-gradient(90deg, var(--pink), #fff);
+      width: 38%;
+    }
+
+    .ki {
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      border: 1px solid rgba(69,217,255,.35);
+      background: radial-gradient(circle, rgba(69,217,255,.22), rgba(0,0,0,.18));
+      font-weight: 950;
+      color: #fff;
+    }
+
+    .stage {
+      position: relative;
+      overflow: hidden;
+      min-height: 420px;
+      border: 1px solid rgba(69,217,255,.25);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 50% 70%, rgba(69,217,255,.18), transparent 48%),
+        linear-gradient(180deg, rgba(6,15,34,.74), rgba(2,5,13,.88));
+    }
+
+    .stage-grid {
+      position: absolute;
+      left: -10%;
+      right: -10%;
+      bottom: -18%;
+      height: 58%;
+      background:
+        linear-gradient(rgba(69,217,255,.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(69,217,255,.18) 1px, transparent 1px);
+      background-size: 58px 38px;
+      transform: perspective(520px) rotateX(62deg);
+      opacity: .45;
+    }
+
+    .fighter-a,
+    .fighter-b {
+      position: absolute;
+      bottom: 24px;
+      width: 260px;
+      height: 360px;
+      background-position: center bottom;
+      background-size: contain;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 0 26px rgba(69,217,255,.38));
+      animation: battleBreathe 1.8s ease-in-out infinite;
+    }
+
+    .fighter-a {
+      left: 80px;
+      background-image: url("../public/characters/fullbody/piccolo-arena-v3.png");
+    }
+
+    .fighter-b {
+      right: 78px;
+      background-image: url("../public/characters/fullbody/cell-boss-fullbody.png");
+      filter: drop-shadow(0 0 26px rgba(255,111,174,.32));
+      animation-delay: -.4s;
+    }
+
+    .beam {
+      position: absolute;
+      left: 36%;
+      top: 46%;
+      width: 32%;
+      height: 18px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, #fff, var(--cyan), transparent);
+      box-shadow: 0 0 24px var(--cyan);
+      animation: beam 1.6s ease-in-out infinite;
+    }
+
+    .result {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      min-height: 122px;
+      display: grid;
+      place-items: center;
+      border: 2px solid rgba(255,255,255,.72);
+      border-radius: 8px;
+      background: rgba(210,246,255,.86);
+      color: #07101c;
+      text-align: center;
+      box-shadow: 0 0 46px rgba(69,217,255,.5);
+      animation: victoryPulse 1.5s ease-in-out infinite alternate;
+    }
+
+    .result strong {
+      font-size: 58px;
+      line-height: .9;
+    }
+
+    .quiz {
+      padding: 14px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.09);
+    }
+
+    .quiz p {
+      color: #d9e6ff;
+      font-weight: 900;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    pre {
+      margin: 0 0 12px;
+      padding: 13px;
+      border-radius: 8px;
+      background: #050713;
+      border: 1px solid rgba(255,255,255,.1);
+      color: #fff;
+      font: 800 15px/1.4 Consolas, monospace;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .answer {
+      min-height: 68px;
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,.055);
+      font-weight: 900;
+    }
+
+    .answer.correct {
+      border-color: var(--green);
+      background: rgba(121,255,147,.12);
+      box-shadow: 0 0 24px rgba(121,255,147,.2);
+    }
+
+    .answer b {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--green);
+      color: #06101d;
+    }
+
+    .side-info .panel {
+      min-height: 190px;
+    }
+
+    .side-info h2 {
+      font-size: 28px;
+      color: var(--cyan);
+    }
+
+    .side-info p {
+      margin-top: 12px;
+      color: #c8d6ee;
+      line-height: 1.45;
+      font-weight: 800;
+    }
+
+    .arena-cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      height: calc(100vh - 170px);
+      align-content: center;
+    }
+
+    .arena-card {
+      min-height: 430px;
+      padding: 18px;
+      display: grid;
+      align-content: start;
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    .arena-card .planet {
+      height: 190px;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 42% 34%, rgba(255,255,255,.9), transparent 5%),
+        radial-gradient(circle, var(--card), #101832 62%, #040713 100%);
+      box-shadow: 0 0 44px color-mix(in srgb, var(--card), transparent 50%);
+      animation: powerIdle 2.9s ease-in-out infinite;
+    }
+
+    .arena-card strong {
+      font-size: 28px;
+    }
+
+    .arena-card span {
+      color: #aebbd3;
+      line-height: 1.45;
+      font-weight: 800;
+    }
+
+    .final-layout {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding-inline: 90px;
+    }
+
+    .final-layout h1 {
+      font-size: 86px;
+    }
+
+    .final-grid {
+      margin-top: 30px;
+      width: min(1080px, 100%);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @keyframes scan { to { transform: translateY(28px); } }
+    @keyframes drift { to { transform: translateY(120px); } }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+    @keyframes floatIn { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes powerIdle { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.018); } }
+    @keyframes sweep { 0%, 45% { transform: translateX(-86%); } 100% { transform: translateX(110%); } }
+    @keyframes fillPulse { 50% { filter: brightness(1.35); } }
+    @keyframes battleBreathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    @keyframes beam { 0%, 100% { opacity: .2; transform: scaleX(.45); } 45% { opacity: 1; transform: scaleX(1.08); } }
+    @keyframes victoryPulse { to { transform: translate(-50%, -50%) scale(1.025); } }
+  </style>
+</head>
+<body>
+  <main class="film">
+    <div class="stars"></div>
+    <div class="halo"></div>
+    <div class="grid-floor"></div>
+    <div class="chapter"><b id="chapterNumber">01</b><span id="chapterText">Abertura</span></div>
+    <div class="caption" id="caption">Code Ki Arena: uma plataforma de estudo gamificada com admin, perfil, dashboard e arenas por linguagem.</div>
+    <div class="progress"><span id="progress"></span></div>
+
+    <section class="scene opening active" data-scene="0">
+      <div class="title-stack">
+        <span class="eyebrow">Tour cinematografico</span>
+        <h1>Bem-vindo ao<br>Code Ki</h1>
+        <p class="subtitle">Goku abre a jornada: do Admin Console ate a batalha, com nick, personagem, progresso, quiz interpretativo e arenas especificas.</p>
+        <div class="cards-3">
+          <div class="mini-card"><strong>Admin Console</strong><span>Conta por nick e acesso controlado.</span></div>
+          <div class="mini-card"><strong>Player Dashboard</strong><span>XP, moedas, cristais e combos.</span></div>
+          <div class="mini-card"><strong>Game Arenas</strong><span>Python, SQL, JavaScript e Java.</span></div>
+        </div>
+      </div>
+      <div class="hero-stage"><div class="hero-fighter"></div></div>
+    </section>
+
+    <section class="scene" data-scene="1">
+      <div class="admin-layout">
+        <div class="panel">
+          <span class="eyebrow">Admin Console</span>
+          <h2>Code Ki Control</h2>
+          <p class="subtitle" style="font-size:20px">O administrador nao cria jogos. Ele verifica o jogador, carrega a conta e libera a entrada na arena.</p>
+          <div class="field">
+            <span class="label">Nick do jogador</span>
+            <div class="input">NeoPython</div>
+          </div>
+          <div class="action-row">
+            <div class="button">Verificar jogador</div>
+            <div class="button secondary">Validar acesso</div>
+          </div>
+          <div class="status-line">Conta nova detectada. Perfil inicial criado com personagem Android 18.</div>
+          <div class="account-list">
+            <span class="label">Contas recentes</span>
+            <div class="account"><i class="avatar" style="background-image:url('../public/characters/portraits/android18-portrait-v4.png')"></i><div><strong>NeoPython</strong><span>Android 18 | SQL liberado</span></div><b>0 XP</b></div>
+            <div class="account"><i class="avatar" style="background-image:url('../public/characters/piccolo-arena-v3.png')"></i><div><strong>PiccoloMaster</strong><span>Piccolo | Python Planet</span></div><b>8.450 XP</b></div>
+          </div>
+        </div>
+        <div class="panel roster">
+          <div class="preview">
+            <div class="body"></div>
+            <strong>Android 18</strong>
+            <span>Precisao Androide</span>
+          </div>
+          <div class="roster-grid">
+            <div class="roster-card"><i class="avatar" style="background-image:url('../public/characters/goku-arena-v3.png')"></i><strong>Goku</strong></div>
+            <div class="roster-card"><i class="avatar" style="background-image:url('../public/characters/portraits/vegeta-portrait-v6.png')"></i><strong>Vegeta</strong></div>
+            <div class="roster-card"><i class="avatar" style="background-image:url('../public/characters/gohan-arena-v3.png')"></i><strong>Gohan</strong></div>
+            <div class="roster-card"><i class="avatar" style="background-image:url('../public/characters/piccolo-arena-v3.png')"></i><strong>Piccolo</strong></div>
+            <div class="roster-card"><i class="avatar" style="background-image:url('../public/characters/trunks-arena-v3.png')"></i><strong>Trunks</strong></div>
+            <div class="roster-card"><i class="avatar" style="background-image:url('../public/characters/portraits/videl-portrait-v4.png')"></i><strong>Videl</strong></div>
+            <div class="roster-card"><i class="avatar" style="background-image:url('../public/characters/portraits/bulma-portrait-v4.png')"></i><strong>Bulma</strong></div>
+            <div class="roster-card active"><i class="avatar" style="background-image:url('../public/characters/portraits/android18-portrait-v4.png')"></i><strong>Android 18</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="2">
+      <div class="dashboard-layout">
+        <div class="panel profile-card">
+          <span class="eyebrow">Player Profile</span>
+          <div class="profile-body"></div>
+          <div class="field"><span class="label">Nick</span><div class="input">NeoPython</div></div>
+          <div class="field"><span class="label">Personagem ativo</span><div class="input">Piccolo</div></div>
+        </div>
+        <div class="panel">
+          <span class="eyebrow">Dashboard do Jogador</span>
+          <h2>Progresso vivo</h2>
+          <p class="subtitle" style="font-size:20px">Cada acerto alimenta recompensa, historico e avanco nas arenas.</p>
+          <div class="stat-grid" style="margin-top:22px">
+            <div class="stat-card"><span>XP</span><strong>8.450</strong></div>
+            <div class="stat-card"><span>Moedas</span><strong>320</strong></div>
+            <div class="stat-card"><span>Cristais</span><strong>14</strong></div>
+            <div class="stat-card"><span>Combo</span><strong>x5</strong></div>
+          </div>
+          <div class="field">
+            <span class="label">Nivel 12 para 13</span>
+            <div class="level-track"><b></b></div>
+          </div>
+        </div>
+        <div class="panel timeline">
+          <span class="eyebrow">Historico</span>
+          <div class="timeline-row"><i>✓</i><div><strong>Python: if</strong><span class="label">Basico | Quiz</span></div><b>+214 XP</b></div>
+          <div class="timeline-row"><i>✓</i><div><strong>SQL: nomes com A</strong><span class="label">Intermediario</span></div><b>+587 XP</b></div>
+          <div class="timeline-row"><i>!</i><div><strong>Boss Cell</strong><span class="label">Padrao perfeito</span></div><b>fase 2</b></div>
+          <div class="timeline-row"><i>↻</i><div><strong>Retorno ao admin</strong><span class="label">trocar conta</span></div><b>ativo</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="3">
+      <div class="arena-layout">
+        <div class="panel game-list">
+          <span class="eyebrow">Selecione os jogos</span>
+          <div class="mode active"><i>Q</i><div><strong>Quiz de Interpretacao</strong><span>Conceitos, codigo e resultado.</span></div></div>
+          <div class="mode"><i>D</i><div><strong>Digitacao</strong><span>Pratica escrevendo comandos.</span></div></div>
+          <div class="mode"><i>C</i><div><strong>Cruzadas</strong><span>Termos com pistas progressivas.</span></div></div>
+          <div class="stat-grid">
+            <div class="stat-card"><span>XP</span><strong>8.664</strong></div>
+            <div class="stat-card"><span>Combo</span><strong>x10</strong></div>
+          </div>
+        </div>
+
+        <div class="panel battle">
+          <div class="hud">
+            <div class="bar"><strong>Piccolo <em>87%</em></strong><span><b style="width:87%"></b></span></div>
+            <div class="ki">KI<br>100%</div>
+            <div class="bar enemy"><strong>Cell <em>38%</em></strong><span><b></b></span></div>
+          </div>
+          <div class="stage">
+            <div class="stage-grid"></div>
+            <div class="fighter-a"></div>
+            <div class="beam"></div>
+            <div class="fighter-b"></div>
+            <div class="result"><div><strong>VITORIA</strong><br><span>Interpretação correta virou ataque.</span></div></div>
+          </div>
+          <div class="quiz">
+            <p>O que o comando <b>if</b> faz em Python?</p>
+            <pre>if energia &gt; 8000:
+    print("Transformar")</pre>
+            <div class="answers">
+              <div class="answer"><b>A</b> Executa repeticao</div>
+              <div class="answer correct"><b>B</b> Avalia uma condicao e executa um bloco</div>
+              <div class="answer"><b>C</b> Armazena dados</div>
+              <div class="answer"><b>D</b> Define uma funcao</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-info">
+          <div class="panel"><h2>Interpretação</h2><p>O quiz deixa de ser palavra solta. Agora ele pergunta significado, leitura de codigo, resultado e erro.</p></div>
+          <div class="panel"><h2>Recompensa</h2><p>Acerto gera XP, moedas, combo, dano no boss e registro no dashboard.</p></div>
+          <div class="panel"><h2>Arena atual</h2><p>Python Planet | Boss Cell | Dificuldade Basico</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="4">
+      <div class="arena-layout">
+        <div class="panel game-list">
+          <span class="eyebrow">Saga ativa</span>
+          <div class="mode"><i>Py</i><div><strong>Python Planet</strong><span>Condicoes, loops e funcoes.</span></div></div>
+          <div class="mode active"><i>SQL</i><div><strong>SQL Planet</strong><span>SELECT, WHERE, LIKE e JOIN.</span></div></div>
+          <div class="mode"><i>JS</i><div><strong>JavaScript City</strong><span>DOM, eventos e APIs.</span></div></div>
+          <div class="mode"><i>J</i><div><strong>Java Planet</strong><span>Classes, objetos e metodos.</span></div></div>
+        </div>
+        <div class="panel battle">
+          <div class="hud">
+            <div class="bar"><strong>Piccolo <em>94%</em></strong><span><b style="width:94%"></b></span></div>
+            <div class="ki">SQL<br>LIKE</div>
+            <div class="bar enemy"><strong>Beerus <em>52%</em></strong><span><b style="width:52%"></b></span></div>
+          </div>
+          <div class="quiz" style="min-height: 430px; display:grid; align-content:center">
+            <p>O que essa consulta faz?</p>
+            <pre>SELECT name, date, year
+FROM users
+WHERE name LIKE 'A%';</pre>
+            <div class="answers">
+              <div class="answer correct"><b>A</b> Seleciona nome, data e ano da tabela users, apenas nomes que comecam com A.</div>
+              <div class="answer"><b>B</b> Cria uma nova tabela chamada users.</div>
+              <div class="answer"><b>C</b> Apaga usuarios que nao comecam com A.</div>
+              <div class="answer"><b>D</b> Atualiza o ano dos usuarios com A no final.</div>
+            </div>
+          </div>
+          <div class="status-line">Resultado: SELECT escolhe colunas, FROM indica a tabela, WHERE filtra, LIKE 'A%' busca nomes iniciados por A.</div>
+        </div>
+        <div class="side-info">
+          <div class="panel"><h2>Modo mais dificil</h2><p>O jogador traduz codigo real para linguagem humana, como em trabalho de dados e backend.</p></div>
+          <div class="panel"><h2>Boss phase</h2><p>SQL Planet troca tema, boss e perguntas sem misturar com a arena oficial.</p></div>
+          <div class="panel"><h2>Admin retorna</h2><p>Depois da partida, o administrador pode abrir outro nick ou revisar progresso.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" data-scene="5">
+      <div class="arena-cards">
+        <div class="arena-card" style="--card:#45d9ff"><div class="planet"></div><strong>Python Planet</strong><span>Primeira campanha: conceitos, comandos, if, loops, funcoes e resultado de codigo.</span></div>
+        <div class="arena-card" style="--card:#a477ff"><div class="planet"></div><strong>SQL Planet</strong><span>Consultas interpretativas, filtros, joins, agregacoes e leitura de query.</span></div>
+        <div class="arena-card" style="--card:#ffd36a"><div class="planet"></div><strong>JavaScript City</strong><span>DOM, eventos, APIs, arrays e comportamento no navegador.</span></div>
+        <div class="arena-card" style="--card:#ff6fae"><div class="planet"></div><strong>Boss Events</strong><span>Desafios temporarios, ranking, recompensas e fases especiais.</span></div>
+      </div>
+    </section>
+
+    <section class="scene final-layout" data-scene="6">
+      <div>
+        <span class="eyebrow">Ideia final melhorada</span>
+        <h1>Admin Console + Player Dashboard + Game Arenas</h1>
+        <p class="subtitle" style="max-width:980px;margin-inline:auto">Uma experiência com abertura forte, fluxo claro, aprendizado interpretativo e identidade própria para cada jogo.</p>
+        <div class="final-grid">
+          <div class="mini-card"><strong>Sem travar</strong><span>Tour local, assets pre-carregados.</span></div>
+          <div class="mini-card"><strong>Com abertura</strong><span>Marca e proposta aparecem primeiro.</span></div>
+          <div class="mini-card"><strong>Mais claro</strong><span>Capitulos e legendas guiam a historia.</span></div>
+          <div class="mini-card"><strong>Mais vendavel</strong><span>Mostra produto, jogo e aprendizado.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const scenes = [
+      { n: "01", c: "Abertura", text: "Bem-vindo ao Code Ki: Goku apresenta a jornada de estudo gamificada, com admin, perfil, dashboard e arenas por linguagem.", ms: 5600 },
+      { n: "02", c: "Admin Console", text: "O administrador entra primeiro, verifica o nick e carrega ou cria a conta do jogador.", ms: 6100 },
+      { n: "03", c: "Player Dashboard", text: "Depois do acesso, o jogador tem perfil proprio: personagem, XP, moedas, cristais, combo e historico.", ms: 6100 },
+      { n: "04", c: "Batalha Python", text: "O quiz interpretativo transforma resposta correta em ataque, dano no boss e recompensa.", ms: 6800 },
+      { n: "05", c: "SQL Planet", text: "Nos modos mais dificeis, o jogador interpreta comandos completos, como uma consulta SELECT com WHERE e LIKE.", ms: 7000 },
+      { n: "06", c: "Arenas", text: "Cada jogo ganha sua propria arena: Python, SQL, JavaScript, Java e eventos de boss.", ms: 5600 },
+      { n: "07", c: "Fechamento", text: "A nova versao do video apresenta o produto sem carregamento travado, com abertura, ritmo e narrativa.", ms: 5400 },
+    ];
+
+    const sceneEls = [...document.querySelectorAll(".scene")];
+    const caption = document.getElementById("caption");
+    const chapterNumber = document.getElementById("chapterNumber");
+    const chapterText = document.getElementById("chapterText");
+    const progress = document.getElementById("progress");
+    const total = scenes.reduce((sum, item) => sum + item.ms, 0);
+    let elapsed = 0;
+
+    scenes.forEach((item, index) => {
+      setTimeout(() => {
+        sceneEls.forEach((el) => el.classList.toggle("active", Number(el.dataset.scene) === index));
+        caption.textContent = item.text;
+        chapterNumber.textContent = item.n;
+        chapterText.textContent = item.c;
+      }, elapsed);
+      elapsed += item.ms;
+    });
+
+    const started = performance.now();
+    function tick() {
+      const pct = Math.min(100, ((performance.now() - started) / total) * 100);
+      progress.style.width = `${pct}%`;
+      requestAnimationFrame(tick);
+    }
+    tick();
+    window.__tourDurationMs = total + 700;
+  </script>
+</body>
+</html>

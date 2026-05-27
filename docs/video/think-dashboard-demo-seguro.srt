@@ -1,0 +1,31 @@
+1
+00:00:00,000 --> 00:00:05,000
+Visao geral segura: todos os indicadores usam dados ficticios para mostrar o funcionamento sem expor operacao real.
+
+2
+00:00:05,000 --> 00:00:10,000
+A caixa de mensagens separa conversas por prioridade, SLA e responsavel. Nomes, telefones e conteudos aqui sao exemplos.
+
+3
+00:00:10,000 --> 00:00:15,000
+Os alertas destacam pontos que precisam de acao: fila crescendo, SLA perto do limite e palavras-chave sensiveis.
+
+4
+00:00:15,000 --> 00:00:20,000
+A aba de grupos mostra quais filas/canais estao conectados e como cada grupo esta performando.
+
+5
+00:00:20,000 --> 00:00:25,000
+As regras definem o que acontece quando uma conversa atinge um criterio: abrir alerta, sugerir resposta ou escalar atendimento.
+
+6
+00:00:25,000 --> 00:00:30,000
+A IA transforma contexto operacional em sugestoes: resumo da conversa, proximas acoes e resposta recomendada para o agente.
+
+7
+00:00:30,000 --> 00:00:35,000
+A tela de WhatsApp mostra sessao, conector e eventos recebidos. Qualquer identificador real foi substituido por valores de exemplo.
+
+8
+00:00:35,000 --> 00:00:41,500
+A configuracao fecha o tour: parametros operacionais aparecem, mas chaves, webhooks e credenciais ficam ocultos.
