@@ -145,6 +145,160 @@ button {
   overflow: hidden;
 }
 
+.access-gate {
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.access-gate-shell {
+  width: min(1180px, 100%);
+  min-height: min(720px, calc(100vh - 48px));
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  gap: 18px;
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 46%);
+  border-radius: 8px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 72% 32%, color-mix(in srgb, var(--accent), transparent 72%), transparent 28%),
+    linear-gradient(145deg, rgba(8, 12, 26, 0.92), rgba(4, 7, 16, 0.82));
+  box-shadow: 0 32px 120px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+}
+
+.access-copy,
+.access-hero {
+  border-radius: 8px;
+  padding: clamp(18px, 3vw, 34px);
+  background: rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+
+.access-copy {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+}
+
+.access-copy h1 {
+  margin: 0;
+  font-size: clamp(56px, 9vw, 112px);
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+
+.access-copy p {
+  margin: 0;
+  max-width: 48ch;
+  color: #c6d2e8;
+  font-weight: 800;
+}
+
+.access-form {
+  display: grid;
+  gap: 12px;
+}
+
+.access-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.access-form span {
+  color: #aebbd3;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.access-form input {
+  min-height: 52px;
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 48%);
+  border-radius: 8px;
+  padding: 0 14px;
+  color: #fff;
+  background: rgba(0,0,0,0.34);
+  outline: none;
+}
+
+.access-form button,
+.access-continue {
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+  font-weight: 900;
+}
+
+.access-status {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(0,0,0,0.24);
+  color: #d9e7ff;
+  font-weight: 800;
+}
+
+.access-status svg {
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.access-status.success {
+  border: 1px solid rgba(93, 255, 184, 0.3);
+  background: rgba(28, 154, 107, 0.12);
+}
+
+.access-continue {
+  justify-self: start;
+  padding: 0 18px;
+}
+
+.access-hero {
+  min-height: 560px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent), transparent 66%), transparent 34%),
+    rgba(255,255,255,0.035);
+}
+
+.access-hero img {
+  width: min(100%, 520px);
+  max-height: 500px;
+  object-fit: contain;
+  filter: saturate(1.08) contrast(1.04) drop-shadow(0 0 36px color-mix(in srgb, var(--accent), transparent 42%));
+}
+
+.access-hero strong {
+  display: block;
+  font-size: clamp(24px, 3vw, 38px);
+  text-transform: uppercase;
+}
+
+.access-hero span {
+  display: block;
+  margin-top: 6px;
+  color: #c9d6ee;
+  font-weight: 800;
+}
+
 .admin-console-shell {
   width: min(1180px, 100%);
   min-height: min(720px, calc(100vh - 48px));
@@ -3341,7 +3495,9 @@ select:focus {
 }
 
 @media (max-width: 1120px) {
+  .access-gate-shell,
   .admin-console-shell,
+  .access-hero,
   .admin-console-side,
   .onboarding-shell,
   .onboarding-roster,
@@ -3367,25 +3523,39 @@ select:focus {
 }
 
 @media (max-width: 720px) {
+  .access-gate,
   .admin-console {
     padding: 12px;
     place-items: start center;
   }
 
+  .access-gate-shell,
   .admin-console-shell {
     min-height: auto;
     padding: 12px;
   }
 
+  .access-copy,
+  .access-hero,
   .admin-console-main,
   .admin-console-side {
     padding: 14px;
   }
 
+  .access-gate-shell,
+  .access-hero,
   .admin-console-actions,
   .player-dashboard-card,
   .progress-dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .access-hero {
+    min-height: auto;
+  }
+
+  .access-hero img {
+    max-height: 360px;
   }
 
   .admin-preview-card {

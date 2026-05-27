@@ -35,6 +35,9 @@ import questionsCsv from '../perguntas_programacao_4000.csv?raw';
 import typingCsv from '../desafios_programacao_16000.csv?raw';
 
 const characterSheetUrl = new URL('../R.png', import.meta.url).href;
+const dataEngineerGokuUrl = '/characters/goku-data-engineer.png';
+const ACCESS_REQUEST_EMAIL = 'samanthaocireulobo93@gmail.com';
+const ACCESS_GATE_STORAGE_KEY = 'codeKiAccessRequestV1';
 const spriteGrid = { columns: 13, rows: 8 };
 const allCharacterSprites = Array.from({ length: spriteGrid.columns * spriteGrid.rows }, (_, index) => ({
   id: index + 1,
@@ -3421,8 +3424,130 @@ function AdminDashboard({ invalidAttempts, onReturnUser }) {
   );
 }
 
+function readAccessRequest() {
+  try {
+    return JSON.parse(window.localStorage.getItem(ACCESS_GATE_STORAGE_KEY));
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeAccessRequest(request) {
+  window.localStorage.setItem(ACCESS_GATE_STORAGE_KEY, JSON.stringify(request));
+}
+
+function buildAccessMailto({ name, email }) {
+  const subject = 'Solicitacao de acesso - Code Ki Arena TEC';
+  const body = [
+    'Ola Samantha,',
+    '',
+    'Um usuario solicitou acesso a Arena TEC - Code Ki.',
+    '',
+    `Nome: ${name}`,
+    `Email: ${email}`,
+    `Data: ${new Date().toLocaleString('pt-BR')}`,
+    '',
+    'Mensagem gerada automaticamente pela tela de solicitacao de acesso.'
+  ].join('\n');
+
+  return `mailto:${ACCESS_REQUEST_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function AccessRequestGate({ onContinue }) {
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [status, setStatus] = React.useState('');
+  const [submitted, setSubmitted] = React.useState(Boolean(readAccessRequest()));
+
+  function submitRequest(event) {
+    event.preventDefault();
+    const cleanName = name.trim();
+    const cleanEmail = email.trim();
+
+    if (!cleanName || !cleanEmail) {
+      setStatus('Informe nome e email para solicitar acesso.');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setStatus('Digite um email valido para continuar.');
+      return;
+    }
+
+    const request = {
+      name: cleanName,
+      email: cleanEmail,
+      requestedAt: new Date().toISOString()
+    };
+    writeAccessRequest(request);
+    setSubmitted(true);
+    setStatus('Sua solicitacao foi encaminhada para Samantha. Aguarde a validacao do acesso.');
+    window.location.href = buildAccessMailto(request);
+  }
+
+  return (
+    <main className="access-gate" style={{ '--accent': '#29d9ff' }}>
+      <div className="space-scene" aria-hidden="true">
+        <div className="planet planet-one" />
+        <div className="planet planet-two" />
+        <div className="stars" />
+        <div className="ki-field">
+          {Array.from({ length: 38 }).map((_, index) => (
+            <span key={index} style={{ '--delay': `${index * -0.29}s`, '--x': `${(index * 37) % 100}%` }} />
+          ))}
+        </div>
+      </div>
+
+      <motion.section
+        className="access-gate-shell"
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.55, ease: 'easeOut' }}
+      >
+        <div className="access-copy">
+          <span className="eyebrow">Bem-vindos a Arena TEC</span>
+          <h1>Code Ki</h1>
+          <p>Solicite entrada para liberar a camada de controle e registrar seu acesso antes de entrar na arena.</p>
+
+          <form className="access-form" onSubmit={submitRequest}>
+            <label>
+              <span>Nome</span>
+              <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Seu nome" maxLength={48} autoComplete="name" />
+            </label>
+            <label>
+              <span>Email</span>
+              <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@email.com" type="email" maxLength={80} autoComplete="email" />
+            </label>
+            <button className="primary" type="submit"><Shield size={18} />Pedir solicitacao</button>
+          </form>
+
+          <div className={`access-status ${submitted ? 'success' : ''}`} role="status">
+            {submitted ? <CheckCircle2 size={18} /> : <Lock size={18} />}
+            <span>{status || 'Acesso protegido. Sua solicitacao sera encaminhada para Samantha por email.'}</span>
+          </div>
+
+          {submitted && (
+            <button className="access-continue" onClick={onContinue}>
+              <ChevronRight size={18} />Continuar para Code Ki Control
+            </button>
+          )}
+        </div>
+
+        <div className="access-hero">
+          <img src={dataEngineerGokuUrl} alt="Goku engenheiro de dados na Arena TEC" />
+          <div>
+            <strong>Goku Engenheiro de Dados</strong>
+            <span>Pipeline, codigo e ki em modo producao.</span>
+          </div>
+        </div>
+      </motion.section>
+    </main>
+  );
+}
+
 function App() {
   const [playerProfile, setPlayerProfile] = React.useState(null);
+  const [accessGranted, setAccessGranted] = React.useState(Boolean(readAccessRequest()));
 
   function openPlayer(profile) {
     writePlayerProfile(profile);
@@ -3431,7 +3556,11 @@ function App() {
 
   return (
     <AnimatePresence mode="wait">
-      {!playerProfile ? (
+      {!accessGranted ? (
+        <motion.div key="access-gate" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+          <AccessRequestGate onContinue={() => setAccessGranted(true)} />
+        </motion.div>
+      ) : !playerProfile ? (
         <motion.div key="admin-console" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
           <AdminConsole onOpenPlayer={openPlayer} />
         </motion.div>
